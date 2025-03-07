@@ -47,6 +47,9 @@ pdfFolderPath = ""
 removeNumbers = "Remove Numbers"
 excelWithHeader = "Without Header"
 
+def defaultLabel0():
+    label0.configure(bg_color="transparent")
+
 def canDisplaySubmitButton():
     if excelFilePath != "" and pdfFolderPath != "":
         submitButton.place(relx=0.95, rely=0.95, anchor=customtkinter.SE)
@@ -69,7 +72,9 @@ def readExcelFile():
     else:
         label1.configure(text="No file selected", bg_color="transparent")
 
-    if pdfFolderPath:
+    # dont remove, lazy to explain, fuck around and find out
+    defaultLabel0()
+
         folder_name = os.path.basename(pdfFolderPath)
         label2.configure(text=f"Folder selected: {folder_name}")
     else:
@@ -89,7 +94,9 @@ def readPdfFolder():
     else:
         label2.configure(text="No folder selected", bg_color="transparent")
 
-    if excelFilePath:
+    # dont remove, lazy to explain, fuck around and find out
+    defaultLabel0()
+
         file_name = os.path.basename(excelFilePath)
         label1.configure(text=f"File selected: {file_name}")
     else:
@@ -149,6 +156,7 @@ def submit():
             print(new)
             os.rename(old, new)
 
+    label0.configure(bg_color="green")
     label1.configure(text="Success! Check the PDF folder.", bg_color="green")
     label2.configure(text="", bg_color="green")
 
@@ -210,9 +218,11 @@ app.grid_rowconfigure(0, weight=1)  # Stretch row 0
 app.grid_rowconfigure(1, weight=1)  # Stretch row 1
 
 # Add a label to display the selected file path
-label1 = customtkinter.CTkLabel(app, text="No file selected", width=300, height=10)
-label1.place(relx=0.5, rely=0.2, anchor=customtkinter.CENTER)
-label2 = customtkinter.CTkLabel(app, text="No folder selected", width=300, height=10)
-label2.place(relx=0.5, rely=0.26, anchor=customtkinter.CENTER)
+label0 = customtkinter.CTkLabel(app, text="", width=300, height=20)
+label0.place(relx=0.5, rely=0.10, anchor=customtkinter.CENTER)
+label1 = customtkinter.CTkLabel(app, text="No file selected", width=300, height=20)
+label1.place(relx=0.5, rely=0.20, anchor=customtkinter.CENTER)
+label2 = customtkinter.CTkLabel(app, text="No folder selected", width=300, height=20)
+label2.place(relx=0.5, rely=0.30, anchor=customtkinter.CENTER)
 
 app.mainloop()
