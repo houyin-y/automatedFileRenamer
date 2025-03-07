@@ -36,10 +36,6 @@ excelFilePath = ""
 pdfFolderPath = ""
 removeNumbers = "Remove Numbers"
 excelWithHeader = "Without Header"
-excelWorksheetName = 0
-
-def defaultLabel0():
-    label0.configure(bg_color="transparent")
 
 def canDisplaySubmitButton():
     if excelFilePath != "" and pdfFolderPath != "":
@@ -53,25 +49,17 @@ def readExcelFile():
     # Open the file dialog to select a file
     excelFilePath = filedialog.askopenfilename()
 
-    # input validation for excel file 
     if excelFilePath:
-        if (excelFilePath[-5:] != ".xlsx"):
-            label1.configure(text="Given file is not in .xlsx format", bg_color="red") 
-        else:
-            file_name = os.path.basename(excelFilePath)
-            label1.configure(text=f"File selected: {file_name}", bg_color="transparent")
+        file_name = os.path.basename(excelFilePath)
+        label1.configure(text=f"File selected: {file_name}")
     else:
         label1.configure(text="No file selected", bg_color="transparent")
 
-    # dont remove, lazy to explain, fuck around and find out
-    defaultLabel0()
-
-    # why do I need this too?
-    """ if pdfFolderPath:
+    if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
         label2.configure(text=f"Folder selected: {folder_name}")
     else:
-        label2.configure(text="No folder selected", bg_color="transparent") """
+        label2.configure(text="No folder selected", bg_color="transparent")
     
     canDisplaySubmitButton()
 
@@ -80,41 +68,34 @@ def readPdfFolder():
 
     pdfFolderPath = filedialog.askdirectory()
 
-    # input validation for pdf folder 
     if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
-        label2.configure(text=f"Folder selected: {folder_name}", bg_color="transparent")
+        label2.configure(text=f"Folder selected: {folder_name}")
     else:
         label2.configure(text="No folder selected", bg_color="transparent")
 
-    # dont remove, lazy to explain, fuck around and find out
-    defaultLabel0()
-
-    # why do I need this?
-    """ if excelFilePath:
+    if excelFilePath:
         file_name = os.path.basename(excelFilePath)
         label1.configure(text=f"File selected: {file_name}")
     else:
-        label1.configure(text="No file selected", bg_color="transparent") """
+        label1.configure(text="No file selected", bg_color="transparent")
 
     canDisplaySubmitButton()
 
 def submit():
-    global excelFilePath, removeNumbers, excelWithHeader, excelWorksheetName
+    global excelFilePath, removeNumbers, excelWithHeader
+
+    print(f"{removeNumbers}, {excelWithHeader}")
 
     # show progress
     label1.configure(text="Renaming the files...", bg_color="yellow")
     label2.configure(text="", bg_color="transparent")
 
     # read excel file
-    try:
-        if (excelWithHeader == "With Header"):
-            ambassador = pd.read_excel(excelFilePath, excelWorksheetName, usecols="A")
-        elif (excelWithHeader == "Without Header"):
-            ambassador = pd.read_excel(excelFilePath, excelWorksheetName, usecols="A", header=None)
-    except ValueError:
-        label1.configure(text="Worksheet named 'Ambassador' not found", bg_color="red")
-        label2.configure(text="", bg_color="transparent")
+    if (excelWithHeader == "With Header"):
+        ambassador = pd.read_excel(excelFilePath, "Ambassador", usecols="A")
+    elif (excelWithHeader == "Without Header"):
+        ambassador = pd.read_excel(excelFilePath, "Ambassador", usecols="A", header=None)
 
     # read and sort the pdf files within the folder
     files = os.listdir(pdfFolderPath)
@@ -128,8 +109,6 @@ def submit():
 
         label1.configure(text="Number of files in PDF folder and number", bg_color="red")
         label2.configure(text="of records in excel is not equal!", bg_color="red")
-
-        raise Exception("Number of excel rows != number of files in folder")
     
     # renaming of pdf files
     for index, old_file_name in enumerate(sorted_files):
@@ -142,52 +121,33 @@ def submit():
 
         # string formatting (etc. a/p, a/l, s/o, d/o)
         # when / is found, remove everything except for the first name 
-        otherIndex = new_file_name.find('/')
-        if otherIndex != -1:
-            new_file_name = new_file_name[:otherIndex-2].strip() + '.pdf'
+        index = new_file_name.find('/')
+        if index != -1:
+            new_file_name = new_file_name[:index-2].strip() + '.pdf'
 
         old = os.path.join(pdfFolderPath + "/" + old_file_name)
         new = os.path.join(pdfFolderPath + "/" + new_file_name)
 
         if os.path.exists(old):
             print(new)
+            os.rename(old, new)
 
-            if os.path.exists(new):
-                new = new[0:-4] + " (" +  str(index+1) +  ")" + new[-4:]
-                os.rename(old, new)
-            else:
-                os.rename(old, new)
-
-    label0.configure(bg_color="green")
     label1.configure(text="Success! Check the PDF folder.", bg_color="green")
     label2.configure(text="", bg_color="green")
 
 def settingsPage():
-    global settingsPage, removeNumbers, excelWithHeader, excelWorksheetName
+    global settingsPage, removeNumbers, excelWithHeader
     settingsPage = customtkinter.CTkToplevel()
     settingsPage.title("Settings")
-    center_window(settingsPage, 410, 300)
+    center_window(settingsPage, 410, 200)
     settingsPage.after(100, settingsPage.lift)
-
-    isWorksheetFirst = "Yes"
 
     def updateValues():
         global removeNumbers, excelWithHeader
         removeNumbers = combo1.get()
         excelWithHeader = combo2.get()
-
-        if (isWorksheetFirst == "Yes"):
-            excelWorksheetName = 0
-        else:
-            # extra dumbproofing aka validation
-            if (excelWorksheetName == ("Please enter your desired worksheet name").strip):
-                excelWorksheetName = 0
-            else:
-                excelWorksheetName = textbox1.get()
-
         print(removeNumbers)
         print(excelWithHeader)
-        print(excelWorksheetName)
         settingsPage.destroy()
 
     # remove numbers from renamed files?
@@ -203,24 +163,6 @@ def settingsPage():
     combo2 = customtkinter.CTkComboBox(settingsPage, values=["With Header", "Without Header"], state="readonly")
     combo2.pack(pady=1)
     combo2.set(excelWithHeader)
-
-    # excel worksheet name
-    label3 = customtkinter.CTkLabel(settingsPage, text="Is your desired worksheet the first worksheet?")
-    label3.pack(pady=0)
-    combo3 = customtkinter.CTkComboBox(settingsPage, values=["Yes", "No"], state="readonly")
-    combo3.pack(pady=2)
-    combo3.set(isWorksheetFirst)
-
-    if (isWorksheetFirst == "No"):
-        label4 = customtkinter.CTkLabe(settingsPage, text="Please enter the name of your worksheet.")
-        label4.pack(pady=0)
-        textbox1 = customtkinter.CTkTextbox(settingsPage)
-        textbox1.insert("0.0", "Please enter your desired worksheet name")
-        textbox1.pack(pady=3)
-
-        
-    else:
-        excelWorksheetName = 0
 
     # Save Button
     saveButton = customtkinter.CTkButton(settingsPage, text="Save", command=updateValues)
@@ -251,11 +193,9 @@ app.grid_rowconfigure(0, weight=1)  # Stretch row 0
 app.grid_rowconfigure(1, weight=1)  # Stretch row 1
 
 # Add a label to display the selected file path
-label0 = customtkinter.CTkLabel(app, text="", width=300, height=20)
-label0.place(relx=0.5, rely=0.10, anchor=customtkinter.CENTER)
-label1 = customtkinter.CTkLabel(app, text="No file selected", width=300, height=20)
-label1.place(relx=0.5, rely=0.20, anchor=customtkinter.CENTER)
-label2 = customtkinter.CTkLabel(app, text="No folder selected", width=300, height=20)
-label2.place(relx=0.5, rely=0.30, anchor=customtkinter.CENTER)
+label1 = customtkinter.CTkLabel(app, text="No file selected", width=300, height=10)
+label1.place(relx=0.5, rely=0.2, anchor=customtkinter.CENTER)
+label2 = customtkinter.CTkLabel(app, text="No folder selected", width=300, height=10)
+label2.place(relx=0.5, rely=0.26, anchor=customtkinter.CENTER)
 
 app.mainloop()
