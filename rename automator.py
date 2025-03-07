@@ -75,6 +75,7 @@ def readExcelFile():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
+    if excelFilePath: 
         folder_name = os.path.basename(pdfFolderPath)
         label2.configure(text=f"Folder selected: {folder_name}")
     else:
@@ -97,6 +98,7 @@ def readPdfFolder():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
+    if pdfFolderPath:        
         file_name = os.path.basename(excelFilePath)
         label1.configure(text=f"File selected: {file_name}")
     else:
