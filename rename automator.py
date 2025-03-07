@@ -93,7 +93,7 @@ def readPdfFolder():
     # input validation for pdf folder 
     if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
-        label2.configure(text=f"Folder selected: {folder_name}")
+        label2.configure(text=f"Folder selected: {folder_name}", bg_color="transparent")
     else:
         label2.configure(text="No folder selected", bg_color="transparent")
 
@@ -119,10 +119,16 @@ def submit():
     label2.configure(text="", bg_color="transparent")
 
     # read excel file
+    try:
+        if (excelWithHeader == "With Header"):
     if (excelWithHeader == "With Header"):
         ambassador = pd.read_excel(excelFilePath, "Ambassador", usecols="A")
     elif (excelWithHeader == "Without Header"):
         ambassador = pd.read_excel(excelFilePath, "Ambassador", usecols="A", header=None)
+        elif (excelWithHeader == "Without Header"):
+    except ValueError:
+        label1.configure(text="Worksheet named 'Ambassador' not found", bg_color="red")
+        label2.configure(text="", bg_color="transparent")
 
     # read and sort the pdf files within the folder
     files = os.listdir(pdfFolderPath)
@@ -174,7 +180,7 @@ def settingsPage():
     global settingsPage, removeNumbers, excelWithHeader
     settingsPage = customtkinter.CTkToplevel()
     settingsPage.title("Settings")
-    center_window(settingsPage, 410, 200)
+    center_window(settingsPage, 410, 300)
     settingsPage.after(100, settingsPage.lift)
 
     def updateValues():
