@@ -49,9 +49,13 @@ def readExcelFile():
     # Open the file dialog to select a file
     excelFilePath = filedialog.askopenfilename()
 
+    # input validation for excel file 
     if excelFilePath:
-        file_name = os.path.basename(excelFilePath)
-        label1.configure(text=f"File selected: {file_name}")
+        if (excelFilePath[-5:] != ".xlsx"):
+            label1.configure(text="Given file is not in .xlsx format", bg_color="red") 
+        else:
+            file_name = os.path.basename(excelFilePath)
+            label1.configure(text=f"File selected: {file_name}", bg_color="transparent")
     else:
         label1.configure(text="No file selected", bg_color="transparent")
 
@@ -68,6 +72,7 @@ def readPdfFolder():
 
     pdfFolderPath = filedialog.askdirectory()
 
+    # input validation for pdf folder 
     if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
         label2.configure(text=f"Folder selected: {folder_name}")
