@@ -147,7 +147,12 @@ def submit():
 
         if os.path.exists(old):
             print(new)
-            os.rename(old, new)
+
+            if os.path.exists(new):
+                new = new[0:-4] + " (" +  str(index+1) +  ")" + new[-4:]
+                os.rename(old, new)
+            else:
+                os.rename(old, new)
 
     label1.configure(text="Success! Check the PDF folder.", bg_color="green")
     label2.configure(text="", bg_color="green")
