@@ -1,3 +1,13 @@
+"""
+TO-DO: 
+    - add rename worksheet function to Settings 
+    - test state of labels (colour & text)
+
+"""
+
+
+
+
 import customtkinter
 import os
 import sys
