@@ -2,6 +2,7 @@
 TO-DO: 
     - add rename worksheet function to Settings 
     - test state of labels (colour & text)
+        - check last few lines of readPdf and readExcel functions (search # here)
 
 """
 
@@ -75,7 +76,8 @@ def readExcelFile():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
-    if excelFilePath: 
+    # here 
+    if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
         label2.configure(text=f"Folder selected: {folder_name}")
     else:
@@ -98,7 +100,8 @@ def readPdfFolder():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
-    if pdfFolderPath:        
+    # here
+    if excelFilePath:
         file_name = os.path.basename(excelFilePath)
         label1.configure(text=f"File selected: {file_name}")
     else:
