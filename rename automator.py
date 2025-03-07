@@ -201,8 +201,8 @@ uploadButton2.place(relx=0.5, rely=0.7, anchor=customtkinter.CENTER)
 submitButton = customtkinter.CTkButton(master=app, text="Submit", command=submit, width=80)
 submitButton.place_forget()
 
-test = customtkinter.CTkImage(dark_image=Image.open(resource_path("img\\settings-dark.png")), light_image=Image.open(resource_path("settings-light.png")), size=(30,30))
-settingsButton = customtkinter.CTkButton(master=app, image=test, text="", command=settingsPage, width=30, height=30, fg_color="transparent")
+settingImg = customtkinter.CTkImage(dark_image=Image.open(resource_path("resources\\settings-dark.png")), light_image=Image.open(resource_path("resources\\settings-light.png")), size=(30,30))
+settingsButton = customtkinter.CTkButton(master=app, image=settingImg, text="", command=settingsPage, width=30, height=30, fg_color="transparent")
 settingsButton.place(relx=0.99, rely=0.05, anchor=customtkinter.NE)
 
 # grid configuration
