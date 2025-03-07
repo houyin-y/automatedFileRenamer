@@ -138,9 +138,9 @@ def submit():
 
         # string formatting (etc. a/p, a/l, s/o, d/o)
         # when / is found, remove everything except for the first name 
-        index = new_file_name.find('/')
-        if index != -1:
-            new_file_name = new_file_name[:index-2].strip() + '.pdf'
+        otherIndex = new_file_name.find('/')
+        if otherIndex != -1:
+            new_file_name = new_file_name[:otherIndex-2].strip() + '.pdf'
 
         old = os.path.join(pdfFolderPath + "/" + old_file_name)
         new = os.path.join(pdfFolderPath + "/" + new_file_name)
