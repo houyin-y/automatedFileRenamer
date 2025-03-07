@@ -114,6 +114,8 @@ def submit():
 
         label1.configure(text="Number of files in PDF folder and number", bg_color="red")
         label2.configure(text="of records in excel is not equal!", bg_color="red")
+
+        raise Exception("Number of excel rows != number of files in folder")
     
     # renaming of pdf files
     for index, old_file_name in enumerate(sorted_files):
