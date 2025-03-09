@@ -1,7 +1,6 @@
 """
 TO-DO: 
-    - add rename worksheet function to Settings 
-    - test state of labels (colour & text)
+    - 
 
 """
 
@@ -44,8 +43,10 @@ center_window(app, 400, 200)
 # global variable declaration
 excelFilePath = ""
 pdfFolderPath = ""
-removeNumbers = "Remove Numbers"
-excelWithHeader = "Without Header"
+addNumbering = "Add Numberings"
+excelWithHeader = "With Header"
+isWorksheetFirst = "Yes"
+excelWorksheetName = 0
 
 def defaultLabel0():
     label0.configure(bg_color="transparent")
@@ -75,9 +76,12 @@ def readExcelFile():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
-    if excelFilePath: 
+    # ensures labels stays updated
+    # scenario: error -> select a field, other field not selected (still red + displaying err msg)
+    # this is change it back to normal duh~
+    if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
-        label2.configure(text=f"Folder selected: {folder_name}")
+        label2.configure(text=f"Folder selected: {folder_name}", bg_color="transparent")
     else:
         label2.configure(text="No folder selected", bg_color="transparent")
     
@@ -91,48 +95,68 @@ def readPdfFolder():
     # input validation for pdf folder 
     if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
-        label2.configure(text=f"Folder selected: {folder_name}")
+        label2.configure(text=f"Folder selected: {folder_name}", bg_color="transparent")
     else:
         label2.configure(text="No folder selected", bg_color="transparent")
 
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
-    if pdfFolderPath:        
+    # ensures labels stays updated
+    # scenario: error -> select a field, other field not selected (still red + displaying err msg)
+    # this is change it back to normal duh~
+    if excelFilePath:
         file_name = os.path.basename(excelFilePath)
-        label1.configure(text=f"File selected: {file_name}")
+        label1.configure(text=f"File selected: {file_name}", bg_color="transparent")
     else:
         label1.configure(text="No file selected", bg_color="transparent")
 
     canDisplaySubmitButton()
 
 def submit():
-    global excelFilePath, removeNumbers, excelWithHeader
-
-    print(f"{removeNumbers}, {excelWithHeader}")
+    global excelFilePath, addNumbering, excelWithHeader, excelWorksheetName
 
     # show progress
-    label1.configure(text="Renaming the files...", bg_color="yellow")
+    label0.configure(text="", bg_color="transparent")
+    label1.configure(text="nah fr if you seeing this, contact your system admin", bg_color="red")
     label2.configure(text="", bg_color="transparent")
+    submitButton.place_forget()
 
     # read excel file
-    if (excelWithHeader == "With Header"):
-        ambassador = pd.read_excel(excelFilePath, "Ambassador", usecols="A")
-    elif (excelWithHeader == "Without Header"):
-        ambassador = pd.read_excel(excelFilePath, "Ambassador", usecols="A", header=None)
+    try:
+        if (type(excelWorksheetName) is int):
+            excelWorksheetNameStrippedNaked = excelWorksheetName
+        else:
+            excelWorksheetNameStrippedNaked = excelWorksheetName.strip()
+
+        if (excelWithHeader == "With Header"):
+            excelWorksheet = pd.read_excel(excelFilePath, excelWorksheetNameStrippedNaked, usecols="A")
+        elif (excelWithHeader == "Without Header"):
+            excelWorksheet = pd.read_excel(excelFilePath, excelWorksheetNameStrippedNaked, usecols="A", header=None)
+    except ValueError:
+        errMsg = "Worksheet named '" + excelWorksheetNameStrippedNaked + "' not found."
+
+        label0.configure(text="", bg_color="red")
+        label1.configure(text=errMsg, bg_color="red")
+        label2.configure(text="", bg_color="red")
+        submitButton.place_forget()
+
+        raise Exception("Worksheet not found")
 
     # read and sort the pdf files within the folder
     files = os.listdir(pdfFolderPath)
     sorted_files = natsorted(files)
 
     # double check for number of files and number of records in excel
-    if (len(ambassador) != len(files)):
+    if (len(excelWorksheet) != len(files)):
         print("\n\n\n\033[31m" + "ERROR!! ooops number of records in excel not equal to the number of files in ilovepdf" + "\033[0m")
-        print("\033[31m" + "Number of records in excel: \033[0;35m" + str(len(ambassador)) + "\033[0m")
+        print("\033[31m" + "Number of records in excel: \033[0;35m" + str(len(excelWorksheet)) + "\033[0m")
         print("\033[31m" + "Number of files in PDF folder: \033[0;35m" + str(len(files)) + "\033[0m")
 
+        label0.configure(text="", bg_color="transparent")
         label1.configure(text="Number of files in PDF folder and number", bg_color="red")
         label2.configure(text="of records in excel is not equal!", bg_color="red")
+        submitButton.place_forget()
 
         raise Exception("Number of excel rows != number of files in folder")
     
@@ -140,10 +164,10 @@ def submit():
     for index, old_file_name in enumerate(sorted_files):
     # very inefficient but in all honesty
     # idc
-        if (removeNumbers == "Remove Numbers"):
-            new_file_name = ambassador.iat[index, 0] + '.pdf'
-        elif (removeNumbers == "Don't Remove Numbers"):
-            new_file_name = str(index+1) + ' - ' + ambassador.iat[index, 0] + '.pdf'
+        if (addNumbering == "Remove Numberings"):
+            new_file_name = excelWorksheet.iat[index, 0] + '.pdf'
+        elif (addNumbering == "Add Numberings"):
+            new_file_name = str(index+1) + ' - ' + excelWorksheet.iat[index, 0] + '.pdf'
 
         # string formatting (etc. a/p, a/l, s/o, d/o)
         # when / is found, remove everything except for the first name 
@@ -168,41 +192,104 @@ def submit():
     label2.configure(text="", bg_color="green")
 
 def settingsPage():
-    global settingsPage, removeNumbers, excelWithHeader
+    global settingsPage, addNumbering, excelWithHeader, isWorksheetFirst, excelWorksheetName
+
     settingsPage = customtkinter.CTkToplevel()
     settingsPage.title("Settings")
-    center_window(settingsPage, 410, 200)
+    center_window(settingsPage, 410, 400)
     settingsPage.after(100, settingsPage.lift)
 
     def updateValues():
-        global removeNumbers, excelWithHeader
-        removeNumbers = combo1.get()
+        global addNumbering, excelWithHeader, isWorksheetFirst, excelWorksheetName
+        addNumbering = combo1.get()
         excelWithHeader = combo2.get()
-        print(removeNumbers)
+        isWorksheetFirst = combo3.get()
+        excelWorksheetName = textbox1.get("0.0", "end") or 0;
+
+        if (isWorksheetFirst == "Yes"):
+            excelWorksheetName = 0
+        else:
+            # extra dumbproofing aka validation
+            strippedBareNaked = ("Key in here").strip()
+            excelWorksheetNameBareNaked = excelWorksheetName.strip()
+
+            if (excelWorksheetNameBareNaked == strippedBareNaked or excelWorksheetNameBareNaked == ""):
+                excelWorksheetName = 0
+            else:
+                excelWorksheetName = textbox1.get("0.0", "end")
+
+        print("\n")
+        print(addNumbering)
         print(excelWithHeader)
+        print(isWorksheetFirst, ":", excelWorksheetName)
         settingsPage.destroy()
 
-    # remove numbers from renamed files?
-    label1 = customtkinter.CTkLabel(settingsPage, text="Would you like to remove numbers from the renamed files?")
-    label1.pack(pady=0)
-    combo1 = customtkinter.CTkComboBox(settingsPage, values=["Remove Numbers", "Don't Remove Numbers"], state="readonly")
-    combo1.pack(pady=1)
-    combo1.set(removeNumbers)
+    ## Function 1 
+    # add numbering to renamed files?
+    label1 = customtkinter.CTkLabel(settingsPage, text="Would you like to add numberings to the renamed files?\n " +
+    "(e.g., 1 - John Doe, 2 - Jane Doe etc.)")
+    label1.pack(side="top", anchor="c", pady=8)
+    combo1 = customtkinter.CTkComboBox(settingsPage, values=["Add Numberings", "Remove Numberings"], state="readonly")
+    combo1.pack(side="top", anchor="c", pady=(0, 20))
+    combo1.set(addNumbering)
 
+    ## Function 2 
     # excel with header?
     label2 = customtkinter.CTkLabel(settingsPage, text="Does your excel file has a header?")
-    label2.pack(pady=0)
+    label2.pack(side="top", anchor="c", pady=0)
     combo2 = customtkinter.CTkComboBox(settingsPage, values=["With Header", "Without Header"], state="readonly")
-    combo2.pack(pady=1)
+    combo2.pack(side="top", anchor="c", pady=(0, 20))
     combo2.set(excelWithHeader)
 
-    # Save Button
-    saveButton = customtkinter.CTkButton(settingsPage, text="Save", command=updateValues)
-    saveButton.pack(pady=10)
+    ## Function 3
+    # excel worksheet name
 
-    # Back Button
-    backButton = customtkinter.CTkButton(settingsPage, text="Back", command=settingsPage.destroy)
-    backButton.pack(pady=0)
+    # clear text on click
+    def clearText(event):
+        textbox1.delete("1.0", "end")
+
+    # dynamic field for worksheet renaming
+    def onComboBoxChange(value):
+        if (value == "Yes"):
+            label4.pack_forget()
+            textbox1.pack_forget()
+        else:
+            label4.pack(pady=0)
+            textbox1.pack(pady=0)
+
+    label3 = customtkinter.CTkLabel(settingsPage, text="Is your desired worksheet the first worksheet?")
+    label3.pack(side="top", anchor="c", pady=0)
+    combo3 = customtkinter.CTkComboBox(settingsPage, values=["Yes", "No"], command=onComboBoxChange)
+    combo3.pack(pady=(0, 20))
+    combo3.set(isWorksheetFirst)
+
+    label4 = customtkinter.CTkLabel(settingsPage, text="Please enter the name of your worksheet.")
+    label4.pack(side="top", anchor="c", pady=0)
+    textbox1 = customtkinter.CTkTextbox(settingsPage, width=200, height=40, border_color="white")
+    textbox1.bind("<FocusIn>", clearText)
+    if (excelWorksheetName == 0):
+        textbox1.insert("0.0", "Key in here")
+    else:
+        textbox1.insert("0.0", excelWorksheetName)
+    textbox1.pack(side="top", anchor="c", pady=(0, 20))
+    onComboBoxChange(isWorksheetFirst)          # dynamic hide/show 
+
+    ## Buttons 
+    def buttons():
+        # Frame to store store the buttons side by side
+        buttonFrame = customtkinter.CTkFrame(settingsPage, fg_color="transparent")
+        buttonFrame.pack(side="bottom", anchor="c", pady=(0, 20))
+
+        # Back Button
+        backButton = customtkinter.CTkButton(buttonFrame, text="Back", command=settingsPage.destroy, width=100)
+        backButton.pack(side="left", padx=(0, 50))
+
+        # Save Button
+        saveButton = customtkinter.CTkButton(buttonFrame, text="Save", command=updateValues, width=100)
+        saveButton.pack(side="right", padx=(50, 0))
+
+    buttons()
+
 
 ##########.
 ## here ##
