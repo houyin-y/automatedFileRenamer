@@ -45,8 +45,8 @@ center_window(app, 400, 200)
 # global variable declaration
 excelFilePath = ""
 pdfFolderPath = ""
-removeNumbers = "Remove Numbers"
-excelWithHeader = "Without Header"
+addNumbering = "Add Numberings"
+excelWithHeader = "With Header"
 
 def defaultLabel0():
     label0.configure(bg_color="transparent")
@@ -110,9 +110,7 @@ def readPdfFolder():
     canDisplaySubmitButton()
 
 def submit():
-    global excelFilePath, removeNumbers, excelWithHeader
-
-    print(f"{removeNumbers}, {excelWithHeader}")
+    global excelFilePath, addNumbering, excelWithHeader, excelWorksheetName
 
     # show progress
     label1.configure(text="Renaming the files...", bg_color="yellow")
@@ -149,9 +147,9 @@ def submit():
     for index, old_file_name in enumerate(sorted_files):
     # very inefficient but in all honesty
     # idc
-        if (removeNumbers == "Remove Numbers"):
+        if (addNumbering == "Remove Numberings"):
             new_file_name = ambassador.iat[index, 0] + '.pdf'
-        elif (removeNumbers == "Don't Remove Numbers"):
+        elif (addNumbering == "Add Numberings"):
             new_file_name = str(index+1) + ' - ' + ambassador.iat[index, 0] + '.pdf'
 
         # string formatting (etc. a/p, a/l, s/o, d/o)
@@ -177,15 +175,16 @@ def submit():
     label2.configure(text="", bg_color="green")
 
 def settingsPage():
-    global settingsPage, removeNumbers, excelWithHeader
+    global settingsPage, addNumbering, excelWithHeader, isWorksheetFirst, excelWorksheetName
+
     settingsPage = customtkinter.CTkToplevel()
     settingsPage.title("Settings")
     center_window(settingsPage, 410, 300)
     settingsPage.after(100, settingsPage.lift)
 
     def updateValues():
-        global removeNumbers, excelWithHeader
-        removeNumbers = combo1.get()
+        global addNumbering, excelWithHeader, isWorksheetFirst, excelWorksheetName
+        addNumbering = combo1.get()
         excelWithHeader = combo2.get()
         print(removeNumbers)
         print(excelWithHeader)
