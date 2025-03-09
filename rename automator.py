@@ -1,7 +1,6 @@
 """
 TO-DO: 
-    - test state of labels (colour & text)
-        - check last few lines of readPdf and readExcel functions (search # here)
+    - 
 
 """
 
@@ -77,10 +76,12 @@ def readExcelFile():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
-    # here 
+    # ensures labels stays updated
+    # scenario: error -> select a field, other field not selected (still red + displaying err msg)
+    # this is change it back to normal duh~
     if pdfFolderPath:
         folder_name = os.path.basename(pdfFolderPath)
-        label2.configure(text=f"Folder selected: {folder_name}")
+        label2.configure(text=f"Folder selected: {folder_name}", bg_color="transparent")
     else:
         label2.configure(text="No folder selected", bg_color="transparent")
     
@@ -101,10 +102,12 @@ def readPdfFolder():
     # dont remove, lazy to explain, fuck around and find out
     defaultLabel0()
 
-    # here
+    # ensures labels stays updated
+    # scenario: error -> select a field, other field not selected (still red + displaying err msg)
+    # this is change it back to normal duh~
     if excelFilePath:
         file_name = os.path.basename(excelFilePath)
-        label1.configure(text=f"File selected: {file_name}")
+        label1.configure(text=f"File selected: {file_name}", bg_color="transparent")
     else:
         label1.configure(text="No file selected", bg_color="transparent")
 
@@ -114,12 +117,17 @@ def submit():
     global excelFilePath, addNumbering, excelWithHeader, excelWorksheetName
 
     # show progress
-    label1.configure(text="Renaming the files...", bg_color="yellow")
+    label0.configure(text="", bg_color="transparent")
+    label1.configure(text="nah fr if you seeing this, contact your system admin", bg_color="red")
     label2.configure(text="", bg_color="transparent")
+    submitButton.place_forget()
 
     # read excel file
     try:
-        excelWorksheetNameStrippedNaked = excelWorksheetName.strip()
+        if (type(excelWorksheetName) is int):
+            excelWorksheetNameStrippedNaked = excelWorksheetName
+        else:
+            excelWorksheetNameStrippedNaked = excelWorksheetName.strip()
 
         if (excelWithHeader == "With Header"):
             excelWorksheet = pd.read_excel(excelFilePath, excelWorksheetNameStrippedNaked, usecols="A")
@@ -131,6 +139,7 @@ def submit():
         label0.configure(text="", bg_color="red")
         label1.configure(text=errMsg, bg_color="red")
         label2.configure(text="", bg_color="red")
+        submitButton.place_forget()
 
         raise Exception("Worksheet not found")
 
@@ -147,6 +156,7 @@ def submit():
         label0.configure(text="", bg_color="transparent")
         label1.configure(text="Number of files in PDF folder and number", bg_color="red")
         label2.configure(text="of records in excel is not equal!", bg_color="red")
+        submitButton.place_forget()
 
         raise Exception("Number of excel rows != number of files in folder")
     
