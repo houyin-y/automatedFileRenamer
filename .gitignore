@@ -1,0 +1,6 @@
+*.xlsx
+
+/.venv
+/build
+/dist
+/ilovepdf
