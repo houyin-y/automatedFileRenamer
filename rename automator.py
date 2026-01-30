@@ -1,6 +1,6 @@
 """
 TO-DO: 
-    - 
+    - add resubmit button upon error, so users don't need to select files again after fixing the error
 
 """
 
@@ -14,6 +14,7 @@ from natsort import natsorted
 import pandas as pd
 from tkinter import filedialog
 from PIL import Image
+import re
 
 customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
@@ -174,6 +175,11 @@ def submit():
         otherIndex = new_file_name.find('/')
         if otherIndex != -1:
             new_file_name = new_file_name[:otherIndex-2].strip() + '.pdf'
+
+        # regex to remove forbidden characters from file name 
+        # forbidden chars: \ / : * ? " < > |
+        forbidden = r'[\\/:*?"<>|]'
+        new_file_name = re.sub(forbidden, '', new_file_name)
 
         old = os.path.join(pdfFolderPath + "/" + old_file_name)
         new = os.path.join(pdfFolderPath + "/" + new_file_name)
